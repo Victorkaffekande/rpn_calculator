@@ -25,7 +25,7 @@ class Plus extends Operator {
   apply(num val1, num val2) => val1 + val2;
 }
 
-class MinusCommand extends Operator {
+class Minus extends Operator {
   @override
   apply(num val1, num val2) => val2 - val1;
 }
@@ -73,5 +73,26 @@ class UndoCommand implements Command {
   execute(myStack stack) {
     // TODO: implement execute
     throw UnimplementedError();
+  }
+}
+
+class PopCommand implements Command {
+  @override
+  execute(myStack stack) {
+    stack.pop();
+    if (stack.length() < 1) {
+      stack.push(0);
+    }
+  }
+}
+
+class CommaCommand implements Command {
+  @override
+  execute(myStack stack) {
+    var val = stack.peek().toString();
+    if (val.contains(".")) return null;
+    var valString = "$val.";
+    stack.pop();
+    stack.push(num.parse(valString));
   }
 }
