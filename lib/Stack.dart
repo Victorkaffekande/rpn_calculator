@@ -23,4 +23,8 @@ class myStack {
     return _numList;
   }
 
+  clear(){
+    _numList.clear();
+  }
+
 }

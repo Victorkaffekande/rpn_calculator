@@ -17,6 +17,8 @@ class _RPNCalculatorState extends State<RPNCalculator> {
     "-": MinusCommand(),
     "*": MultiplyCommand(),
     "/": DivideCommand(),
+    "C": ClearCommand(),
+    "del": DeleteCommand(),
     // "Enter": EnterCommand(),
     //TODO ENTER COMMAND
     //CLEAR
@@ -24,7 +26,7 @@ class _RPNCalculatorState extends State<RPNCalculator> {
   };
 
   final myStack _stack = myStack();
-  String _input = "0";
+  String _input = "";
 
   bool resat = false;
 
@@ -51,7 +53,8 @@ class _RPNCalculatorState extends State<RPNCalculator> {
             child: Directionality(
               textDirection: TextDirection.rtl,
               child:
-                  GridView.count(crossAxisCount: 3, children: _buildNumbers()),
+                  GridView.count(
+                      crossAxisCount: 3, children: _buildNumbers()),
             ),
           ),
           Flexible(
@@ -81,6 +84,7 @@ class _RPNCalculatorState extends State<RPNCalculator> {
       );
     });
     list = list.reversed.toList();
+    //list.add(Divider());
     list.add(ElevatedButton(
         onPressed: () {
           _updateInput(0);
@@ -101,7 +105,7 @@ class _RPNCalculatorState extends State<RPNCalculator> {
     _stack.push(0);
     _input = "0";
   }
-
+//TODO SPLIT COMMANDS I C,DEL ENTER FORPOP OG OPERATORS
   _buildCommands() {
     var list = List.generate(_commandMap.length, (index) {
       var key = _commandMap.keys.toList()[index];
@@ -117,7 +121,6 @@ class _RPNCalculatorState extends State<RPNCalculator> {
     });
     list.add(ElevatedButton(
         onPressed: () {
-          // _stack.push(num.parse(_input));
           _resetInput();
           setState(() {});
         },
