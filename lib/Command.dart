@@ -6,44 +6,38 @@ abstract class Command {
   execute(myStack stack);
 }
 
-class PlusCommand implements Command {
+abstract class Operator extends Command {
+  apply(num val1, num val2);
+
+  accept(myStack stack) => stack.length() > 1;
+
   @override
   execute(stack) {
-    var a = stack.pop();
-    var b = stack.pop();
-    var result = a + b;
-    stack.push(result);
+    final val1 = stack.pop();
+    final val2 = stack.pop();
+    if (val1 == null || val2 == null) return null;
+    stack.push(apply(val1, val2));
   }
 }
 
-class MinusCommand implements Command {
+class Plus extends Operator {
   @override
-  execute(stack) {
-    var a = stack.pop();
-    var b = stack.pop();
-    var result = b - a;
-    stack.push(result);
-  }
+  apply(num val1, num val2) => val1 + val2;
 }
 
-class MultiplyCommand implements Command {
+class MinusCommand extends Operator {
   @override
-  execute(stack) {
-    var a = stack.pop();
-    var b = stack.pop();
-    var result = a * b;
-    stack.push(result);
-  }
+  apply(num val1, num val2) => val2 - val1;
 }
 
-class DivideCommand implements Command {
+class Multiply extends Operator {
   @override
-  execute(stack) {
-    var a = stack.pop();
-    var b = stack.pop();
-    var result = b / a;
-    stack.push(result);
-  }
+  apply(num val1, num val2) => val1 * val2;
+}
+
+class Divide extends Operator {
+  @override
+  apply(num val1, num val2) => val2 / val1;
 }
 
 class ClearCommand implements Command {
@@ -66,12 +60,18 @@ class DeleteCommand implements Command {
     }
   }
 }
-/*
-class EnterCommand implements Command{
 
+class EnterCommand implements Command {
   @override
   execute(myStack stack) {
-    stack.push(1);
+    stack.push(0);
   }
 }
-*/
+
+class UndoCommand implements Command {
+  @override
+  execute(myStack stack) {
+    // TODO: implement execute
+    throw UnimplementedError();
+  }
+}

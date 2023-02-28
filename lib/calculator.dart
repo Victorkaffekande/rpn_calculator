@@ -12,21 +12,22 @@ class RPNCalculator extends StatefulWidget {
 }
 
 class _RPNCalculatorState extends State<RPNCalculator> {
-  final Map<String, Command> _commandMap = {
-    "+": PlusCommand(),
+  final Map<String, Operator> _operatorMap = {
+    "+": Plus(),
     "-": MinusCommand(),
-    "*": MultiplyCommand(),
-    "/": DivideCommand(),
+    "*": Multiply(),
+    "/": Divide(),
+  };
+
+  final Map<String, Command> _commandMap = {
     "C": ClearCommand(),
     "del": DeleteCommand(),
-    // "Enter": EnterCommand(),
-    //TODO ENTER COMMAND
-    //CLEAR
-    //backspace
+    "Enter": EnterCommand(),
+    "UndoFix": UndoCommand(),
+    //TODO MÅSKE FORCEPOP
   };
 
   final myStack _stack = myStack();
-  String _input = "";
 
   bool resat = false;
 
@@ -35,9 +36,10 @@ class _RPNCalculatorState extends State<RPNCalculator> {
     return Scaffold(
       appBar: AppBar(title: const Text("RPN calculator")),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           _buildStackScroll(context),
-          //input btns
+
           _buildControls(context),
         ],
       ),
@@ -46,23 +48,27 @@ class _RPNCalculatorState extends State<RPNCalculator> {
 
   _buildControls(BuildContext context) {
     return Expanded(
-      child: Row(
+      child: Column(
         children: [
-          Flexible(
-            flex: 2,
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child:
-                  GridView.count(
-                      crossAxisCount: 3, children: _buildNumbers()),
+          Row(
+            children: _buildCommands(),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: GridView.count(
+                        crossAxisCount: 3, children: _buildNumbers()),
+                  ),
+                ),
+                Column(
+                  children: _buildOperators(),
+                ),
+              ],
             ),
           ),
-          Flexible(
-            flex: 1,
-            child: Column(
-              children: _buildCommands(),
-            ),
-          )
         ],
       ),
     );
@@ -94,38 +100,39 @@ class _RPNCalculatorState extends State<RPNCalculator> {
   }
 
   _updateInput(int s) {
-    if (!resat) _stack.pop();
-    resat = false;
-    _input += s.toString();
-    _stack.push(num.parse(_input));
+    //if (!resat) _stack.pop();
+    var val;
+    if (!resat) {
+      val = _stack.pop().toString();
+      resat = false;
+    } else {
+      val = "";
+    }
+    val += s.toString();
+    _stack.push(num.parse(val));
     setState(() {});
   }
 
   _resetInput() {
+    resat = false;
     _stack.push(0);
-    _input = "0";
   }
+
 //TODO SPLIT COMMANDS I C,DEL ENTER FORPOP OG OPERATORS
-  _buildCommands() {
-    var list = List.generate(_commandMap.length, (index) {
-      var key = _commandMap.keys.toList()[index];
+  _buildOperators() {
+    return List.generate(_operatorMap.length, (index) {
+      var key = _operatorMap.keys.toList()[index];
       return ElevatedButton(
           onPressed: () {
-            var command = _commandMap[key];
-            command?.execute(_stack);
-            _input = "0";
-            resat = true;
+            var operator = _operatorMap[key];
+            if (operator?.accept(_stack)) {
+              operator?.execute(_stack);
+              resat = true;
+            }
             setState(() {});
           },
           child: Text(key, style: Theme.of(context).textTheme.headlineSmall));
     });
-    list.add(ElevatedButton(
-        onPressed: () {
-          _resetInput();
-          setState(() {});
-        },
-        child: const Text("Enter")));
-    return list;
   }
 
   _buildStackScroll(BuildContext context) {
@@ -145,5 +152,21 @@ class _RPNCalculatorState extends State<RPNCalculator> {
         }).reversed.toList(),
       ),
     );
+  }
+
+  _buildCommands() {
+    return List.generate(_commandMap.length, (index) {
+      var key = _commandMap.keys.toList()[index];
+      return Expanded(
+        child: ElevatedButton(
+          onPressed: () {
+            var command = _commandMap[key];
+            command?.execute(_stack);
+            setState(() {});
+          },
+          child: Text(key),
+        ),
+      );
+    });
   }
 }
