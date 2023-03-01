@@ -3,16 +3,17 @@ import 'package:flutter/cupertino.dart';
 import 'Stack.dart';
 
 abstract class Command {
-  execute(myStack stack);
+  execute(myStack stack, String input);
 }
 
 abstract class Operator extends Command {
   apply(num val1, num val2);
 
-  accept(myStack stack) => stack.length() > 1;
+  accept(myStack stack) => stack.length() >= 1;
 
   @override
-  execute(stack) {
+  execute(stack, input) {
+    stack.push(num.parse(input));
     final val1 = stack.pop();
     final val2 = stack.pop();
     if (val1 == null || val2 == null) return null;
@@ -42,57 +43,38 @@ class Divide extends Operator {
 
 class ClearCommand implements Command {
   @override
-  execute(myStack stack) {
+  execute(myStack stack, input) {
     stack.clear();
-    stack.push(0);
   }
 }
 
 class DeleteCommand implements Command {
   @override
-  execute(myStack stack) {
-    String val = stack.pop().toString();
-    String stringVal = val.substring(0, val.length - 1);
-    if (stringVal.isEmpty) {
-      stack.push(0);
-    } else {
-      stack.push(num.parse(stringVal));
-    }
+  execute(myStack stack, input) {
+    String val = input.substring(0, input.length - 1);
+    if (val.isEmpty) return "0";
+    return input.substring(0, input.length - 1);
   }
 }
 
 class EnterCommand implements Command {
   @override
-  execute(myStack stack) {
-    stack.push(0);
-  }
-}
-
-class UndoCommand implements Command {
-  @override
-  execute(myStack stack) {
-    // TODO: implement execute
-    throw UnimplementedError();
+  execute(myStack stack, String input) {
+    stack.push(num.parse(input));
   }
 }
 
 class PopCommand implements Command {
   @override
-  execute(myStack stack) {
-    stack.pop();
-    if (stack.length() < 1) {
-      stack.push(0);
-    }
+  execute(myStack stack, input) {
+    return stack.pop().toString();
   }
 }
 
 class CommaCommand implements Command {
   @override
-  execute(myStack stack) {
-    var val = stack.peek().toString();
-    if (val.contains(".")) return null;
-    var valString = "$val.";
-    stack.pop();
-    stack.push(num.parse(valString));
+  execute(myStack stack, input) {
+    if (input.contains(".")) return input;
+    return "$input.";
   }
 }

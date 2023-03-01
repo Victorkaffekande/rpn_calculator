@@ -21,18 +21,16 @@ class _RPNCalculatorState extends State<RPNCalculator> {
   };
 
   final Map<String, Command> _commandMap = {
-    "C": ClearCommand(),
-    "Del": DeleteCommand(),
+    "CA": ClearCommand(),
+    "<=": DeleteCommand(),
     "Enter": EnterCommand(),
-    "Undo": UndoCommand(),//TODO FIX
-    "Comma": CommaCommand(),//TODO FIX
+    "Comma": CommaCommand(),
     "Pop": PopCommand()
-
   };
 
   final myStack _stack = myStack();
-
-  bool resat = false;
+  String _input = "0";
+  bool newLine = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,10 +54,11 @@ class _RPNCalculatorState extends State<RPNCalculator> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final str in ["C", "Del", "Undofix"])
+                for (final str in ["CA", "<=","Pop"])
+                  KeyButton.operator(
+                      onPressed: () => _handleCommand(str), label: str),
                 KeyButton.operator(
-                    onPressed: () => _handleCommand(str), label: str),
-                KeyButton.operator(onPressed:() => _handleOperator("/"), label: "/")
+                    onPressed: () => _handleOperator("/"), label: "/")
               ],
             ),
           ),
@@ -67,10 +66,10 @@ class _RPNCalculatorState extends State<RPNCalculator> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final num in [7, 8, 9])
+                for (final str in ['7', '8', '9'])
                   KeyButton.number(
-                    onPressed: () => _updateInput(num),
-                    label: num.toString(),
+                    onPressed: () => _updateInput(str),
+                    label: str,
                   ),
                 KeyButton.operator(
                     onPressed: () => _handleOperator("*"), label: "*")
@@ -81,10 +80,10 @@ class _RPNCalculatorState extends State<RPNCalculator> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final num in [4, 5, 6])
+                for (final str in ['4', '5', '6'])
                   KeyButton.number(
-                    onPressed: () => _updateInput(num),
-                    label: num.toString(),
+                    onPressed: () => _updateInput(str),
+                    label: str,
                   ),
                 KeyButton.operator(
                     onPressed: () => _handleOperator("+"), label: "+")
@@ -95,10 +94,10 @@ class _RPNCalculatorState extends State<RPNCalculator> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final num in [1, 2, 3])
+                for (final str in ['1', '2', '3'])
                   KeyButton.number(
-                    onPressed: () => _updateInput(num),
-                    label: num.toString(),
+                    onPressed: () => _updateInput(str),
+                    label: str,
                   ),
                 KeyButton.operator(
                     onPressed: () => _handleOperator("-"), label: "-")
@@ -113,9 +112,9 @@ class _RPNCalculatorState extends State<RPNCalculator> {
                     child: Row(
                   children: [
                     KeyButton.number(
-                        onPressed: () => _updateInput(0), label: "0"),
+                        onPressed: () => _updateInput("0"), label: "0"),
                     KeyButton.operator(
-                        onPressed: () => _handleCommand("Pop"), label: "Pop"),
+                        onPressed: () => _handleCommand("Comma"), label: "."),
                   ],
                 )),
                 KeyButton(
@@ -130,50 +129,59 @@ class _RPNCalculatorState extends State<RPNCalculator> {
 
   _handleCommand(String s) {
     var com = _commandMap[s];
-    com?.execute(_stack);
-    resat = false;
+    var val = com?.execute(_stack, _input);
+    _input = val ?? "0";
+    newLine = false;
     setState(() {});
   }
 
   _handleOperator(String string) {
     var op = _operatorMap[string];
     if (op?.accept(_stack)) {
-      op?.execute(_stack);
-      resat = true;
+      op?.execute(_stack, _input);
+      newLine = true;
+      _input = _stack.pop().toString();
     }
     setState(() {});
   }
 
-  _updateInput(int s) {
-    String val;
-    if (!resat) {
-      val = _stack.pop().toString();
-      resat = false;
+  _updateInput(String s) {
+    if (newLine) {
+      _stack.push(num.parse(_input));
+      _input = s;
+      newLine = false;
     } else {
-      val = "";
+      if (_input == "0") _input = "";
+      _input += s.toString();
     }
-    val += s.toString();
-    _stack.push(num.parse(val));
     setState(() {});
   }
 
   _buildStackScroll(BuildContext context) {
-    return Expanded(
-      child: ListView(
-        reverse: true,
-        scrollDirection: Axis.vertical,
-        children: List.generate(_stack.length(), (index) {
+    var list = [
+          Align(
+            alignment: Alignment.centerRight,
+            child:
+                Text(_input, style: Theme.of(context).textTheme.headlineLarge),
+          )
+        ] +
+        List.generate(_stack.length(), (index) {
           String string = _stack.getStack().toList()[index].toString();
           return Align(
             alignment: Alignment.centerRight,
             child: Text(
               string,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
           );
-        }).reversed.toList(),
+        }).reversed.toList();
+
+    return Expanded(
+      child: ListView(
+        reverse: true,
+        scrollDirection: Axis.vertical,
+        children: list,
       ),
     );
   }
-
 }

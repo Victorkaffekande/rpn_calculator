@@ -1,5 +1,5 @@
 class myStack {
-  final List<num> _numList = [0];// 0 as starting value
+  final List<num> _numList = [];
 
   peek() {
     return _numList.last;
