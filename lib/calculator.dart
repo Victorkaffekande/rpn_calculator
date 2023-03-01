@@ -56,9 +56,10 @@ class _RPNCalculatorState extends State<RPNCalculator> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final str in ["C", "Del", "Undo","Pop"])
+                for (final str in ["C", "Del", "Undofix"])
                 KeyButton.operator(
-                    onPressed: () => _handleCommand(str), label: str)
+                    onPressed: () => _handleCommand(str), label: str),
+                KeyButton.operator(onPressed:() => _handleOperator("/"), label: "/")
               ],
             ),
           ),
@@ -86,7 +87,7 @@ class _RPNCalculatorState extends State<RPNCalculator> {
                     label: num.toString(),
                   ),
                 KeyButton.operator(
-                    onPressed: () => _handleOperator("/"), label: "/")
+                    onPressed: () => _handleOperator("+"), label: "+")
               ],
             ),
           ),
@@ -114,7 +115,7 @@ class _RPNCalculatorState extends State<RPNCalculator> {
                     KeyButton.number(
                         onPressed: () => _updateInput(0), label: "0"),
                     KeyButton.operator(
-                        onPressed: () => _handleCommand("Comma"), label: ","),
+                        onPressed: () => _handleCommand("Pop"), label: "Pop"),
                   ],
                 )),
                 KeyButton(
