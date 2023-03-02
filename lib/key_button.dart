@@ -36,7 +36,7 @@ class KeyButton extends StatelessWidget {
       case KeyKind.operator:
         return Theme.of(context).hoverColor;
       default:
-        return null;
+        return Theme.of(context).primaryColorDark;
     }
   }
 
@@ -50,7 +50,7 @@ class KeyButton extends StatelessWidget {
             backgroundColor: backgroundColor(context),
           ),
           onPressed: onPressed,
-          child: Text(label, style: Theme.of(context).textTheme.headlineSmall,),
+          child: Text(label, style: TextStyle(fontSize: 32)),
         ),
       ),
     );

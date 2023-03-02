@@ -67,7 +67,9 @@ class EnterCommand implements Command {
 class PopCommand implements Command {
   @override
   execute(myStack stack, input) {
-    return stack.pop().toString();
+    if (stack.length()>0) {
+      return stack.pop().toString();
+    }
   }
 }
 

@@ -29,13 +29,13 @@ class _RPNCalculatorState extends State<RPNCalculator> {
   };
 
   final myStack _stack = myStack();
-  String _input = "0";
+  String _input = "0"; // starting value
   bool newLine = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("RPN calculator")),
+      appBar: AppBar(title: const Text("RPN calculator"),centerTitle: true,backgroundColor: Theme.of(context).primaryColor,),
       body: Column(
         // mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -54,7 +54,7 @@ class _RPNCalculatorState extends State<RPNCalculator> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final str in ["CA", "<=","Pop"])
+                for (final str in ["CA", "<=", "Pop"])
                   KeyButton.operator(
                       onPressed: () => _handleCommand(str), label: str),
                 KeyButton.operator(
@@ -110,6 +110,7 @@ class _RPNCalculatorState extends State<RPNCalculator> {
               children: [
                 Expanded(
                     child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     KeyButton.number(
                         onPressed: () => _updateInput("0"), label: "0"),
@@ -151,7 +152,9 @@ class _RPNCalculatorState extends State<RPNCalculator> {
       _input = s;
       newLine = false;
     } else {
-      if (_input == "0") _input = "";
+      if (_input == "0") {
+        _input = "";
+      }
       _input += s.toString();
     }
     setState(() {});
@@ -161,8 +164,9 @@ class _RPNCalculatorState extends State<RPNCalculator> {
     var list = [
           Align(
             alignment: Alignment.centerRight,
-            child:
-                Text(_input, style: Theme.of(context).textTheme.headlineLarge),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+                child: Text(_input, style: const TextStyle(fontSize: 60))),
           )
         ] +
         List.generate(_stack.length(), (index) {
@@ -171,7 +175,7 @@ class _RPNCalculatorState extends State<RPNCalculator> {
             alignment: Alignment.centerRight,
             child: Text(
               string,
-              style: Theme.of(context).textTheme.headlineLarge,
+              style: const TextStyle(fontSize: 35),
             ),
           );
         }).reversed.toList();
